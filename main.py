@@ -12,6 +12,7 @@ from mpl_toolkits.mplot3d import Axes3D
 # file imports
 from infinitesquarewell import InfiniteSquareWell
 from potentials import PotentialType
+from incdecbutton import IncDecButton
 from generatehamiltonian import compute_hamiltonian
 
 def solve_problem(potential_choice=PotentialType.square, potential_amplitude=0.0, e_vals=5,
@@ -81,10 +82,25 @@ def main():
     canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
     canvas.draw()
 
-    quit_button = tkinter.Button(
-    master=root, text="Quit", command=lambda: _quit(root))
+    # Quit button to exit
+    quit_button = tkinter.Button(master=root, text="Quit", command=lambda: _quit(root))
+
+     # Helper class that has button functions
+    inc_dec = IncDecButton(subfig, canvas, x, y, funcs, V)
+    inc_dec.init_plot()
+
+    # prev eigenfunction
+    prev_button = tkinter.Button(
+        master=root, text="Prev Plot", command=lambda: inc_dec.dec_selector())
+
+    # next eigenfunction
+    next_button = tkinter.Button(
+        master=root, text="Next Plot", command=lambda: inc_dec.inc_selector())
+
 
     canvas.get_tk_widget().pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=1)
+    prev_button.pack(side=tkinter.TOP)
+    next_button.pack(side=tkinter.TOP)
     quit_button.pack(side=tkinter.BOTTOM)
 
     tkinter.mainloop()
