@@ -62,11 +62,11 @@ class InfiniteSquareWell:
         for n in range(1, self.energy_eigenvals+1):
             for m in range(1, self.energy_eigenvals+1):
                 # analytic formulae
-                energy = (n**2 + m**2) * (self.hbar * PI / L) ** 2 / (2.0*self.mass)
+                energy = (n*n + m*m) * (self.hbar * PI / L) ** 2 / (2.0*self.mass)
                 eigenfunc = self.basis_2D(self.xvals, self.yvals, n, m)
                 # Add to dicts
-                self.eigenvals[n**2+m**2] = energy
-                self.basis_funcs[n**2+m**2] = eigenfunc
+                self.eigenvals[(n,m)] = energy
+                self.basis_funcs[(n,m)] = eigenfunc
             
 
 

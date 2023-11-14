@@ -22,7 +22,7 @@ def general_well(ISW, f):
     """Place an infinite barrier at bounds, evals func provided elsewhere."""
     MXVAL = 10000
     ret = f(ISW.xvals, ISW.yvals)
-    ret[0,:] = ret[:,0] = ret[-1,:] = ret[:,-1] = MXVAL
+    ret[0,:] = ret[:,0] = ret[-1,:] = ret[:,-1] = MXVAL # change boundaries to be MXVAL
     return ret
 
 def square(ISW, amplitude):
@@ -140,7 +140,7 @@ def lennard_jones(ISW, amplitude):
 class PotentialType(Enum):
     """Enumeration which contains all working potential types."""
 
-    square = auto()              # BROKEN
+    square = auto()              # WORKING
     linear = auto()              # BROKEN
     quadratic = auto()           # BROKEN
     centered_quadratic = auto()  # BROKEN

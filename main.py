@@ -6,27 +6,58 @@ from mpl_toolkits.mplot3d import Axes3D
 from infinitesquarewell import InfiniteSquareWell
 from potentials import PotentialType
 from generatehamiltonian import compute_hamiltonian
+import time
 
-def solve_problem(potential_choice=PotentialType.square, potential_amplitude=0.0, e_vals=5, l_bnd=-1.0, r_bnd=1.0):
+def solve_problem(potential_choice=PotentialType.linear, potential_amplitude=2.0, e_vals=5, l_bnd=-1.0, r_bnd=1.0):
+    # Define ISW basis using predefined min/max
+    # TODO: Change this so you can have rectangular space, where x and y not necessary same min/max
     ISW = InfiniteSquareWell(energy_eigenvals=e_vals, well_min=l_bnd, well_max=r_bnd)
-    potential = PotentialType.square
-    V = potential.get_potential(ISW, potential_amplitude)
-    return ISW, V
+
+    # Extract potential meshgrid
+    V = potential_choice.get_potential(ISW, potential_amplitude)
+
+    # compute the hamiltonian, it is a (e_vals*e_vals)x(e_vals*e_vals) array
+    H = compute_hamiltonian(V,ISW)  
+    # diagonalize it
+    eigenvals, eigenvecs = la.eig(H)
+    
+    # New eigenfunctions are colummn of eigenvec array times original corresponding eigenfunc
+    # note that they are in the same order
+    newfuncs = []
+    for col in np.transpose(eigenvecs):
+        lin_combination = np.zeros(V.shape)
+        for (func, val) in zip(ISW.basis_funcs.values(), col):
+            lin_combination += func*val
+        newfuncs.append(lin_combination)
+    
+    x,y = ISW.xvals,ISW.yvals
+
+    zipped = zip(eigenvals,newfuncs)
+    sorted_zip = sorted(zipped)
+    sorted_newfuncs = []
+    for (_, func) in sorted_zip:
+        sorted_newfuncs.append(func)
+
+    # returns:
+    # x :: valid x values for plotting
+    # y :: valid y values for plotting
+    # V :: Potential
+    # newfuncs :: new eigenfuncs from diagonalized H
+    # eigenvals :: new eigenvals of diagonalized H
+    return (x,y,V,sorted_newfuncs,sorted(eigenvals))
     
 def main():
     # plot 2d wavefunction
-    ISW, V = solve_problem()
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    nx = 1
-    ny = 2
-    print(type(V))
-    #ax.plot_surface(ISW.xvals, ISW.yvals, V,
-    #                cmap='viridis')
-    #plt.title(f'2D Potential')
-    #plt.xlabel('x')
-    #plt.ylabel('y')
-    #plt.show()
+    x, y, V, funcs, vals = solve_problem()
+    for (energy,func) in zip(vals,funcs):
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.plot_surface(x, y, func, cmap='viridis')
+        plt.title(f'2D Eigenfunc: {energy}')
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.show()
 
+    plt.ioff()
 if __name__ == '__main__':
     main()

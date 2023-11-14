@@ -15,8 +15,7 @@ def compute_hamiltonian(V, ISW):
     """Compute discretized hamiltonian."""
     assert(isinstance(ISW, InfiniteSquareWell))
     hamiltonian = []
-    # Note, the ket |i j> is a single eigenfunction
-    for i in ISW.eigenvals.keys():
+    for i in ISW.eigenvals.keys(): # note: i is a tuple 
         row = []  # one row of the hamiltonian matrix
         for j in ISW.eigenvals.keys():
             psil, psir = ISW.basis_funcs[i], ISW.basis_funcs[j]
@@ -26,4 +25,4 @@ def compute_hamiltonian(V, ISW):
             row.append(el)
             el = 0.0
         hamiltonian.append(row)
-    return hamiltonian
+    return np.array(hamiltonian)
