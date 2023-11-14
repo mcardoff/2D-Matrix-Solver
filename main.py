@@ -53,6 +53,57 @@ def solve_problem(potential_choice=PotentialType.square, potential_amplitude=0.0
     # eigenvals :: new eigenvals of diagonalized H
     return (x,y,V,sorted_newfuncs,sorted(eigenvals))
 
+def _on_item_select(list_box, button_obj, e_text_obj, amp_text_obj,
+                    fig, x_min_obj, x_max_obj, y_min_obj, y_max_obj,
+                    e_val_obj, event):
+    """When an item in list_box is selected, recalculate the problem."""
+    # global canvas, root
+
+    potential = [enum for enum in PotentialType][list_box.curselection()[0]]
+    potential_amp = float(amp_text_obj.get())
+    x_min, x_max = float(x_min_obj.get()), float(x_max_obj.get())
+    y_min, y_max = float(y_min_obj.get()), float(y_max_obj.get())
+    e_vals = int(e_val_obj.get())
+
+    # re-solve the problem
+    x, y, V, funcs, vals = solve_problem(
+        potential_choice=potential, potential_amplitude=potential_amp,
+        e_vals=e_vals, x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max)
+
+    # update figure title
+    fig.suptitle(potential.to_string())
+
+    # update button class
+    button_obj.update_vals(x, y, funcs, V)
+
+    # update energy text
+    _format_energy_text(e_text_obj, vals)
+
+def _validate_float(test):
+    """Validate whether or not test is a valid floating number input."""
+    # Ensure only one minus sign and decimal point
+    replace_chars = ['.', '-']
+    for char in replace_chars:
+        test = test.replace(char, "", 1)
+    return (test.isdigit() or test == "")
+
+
+def _validate_int(test):
+    """Validate whether or not test is a valid integer input."""
+    # isdigit is siffucient
+    return (test.isdigit() or test == "")
+
+def _format_energy_text(text_obj, energy_vals):
+    """Clear text currently in text_obj, replace with energy_vals."""
+    text_obj.delete("1.0", "end")
+
+    energy_string = ""
+    for (i, val) in enumerate(np.sort(energy_vals)):
+        num = "0{}".format(i+1) if i+1 < 10 else str(i+1)
+        energy_string += f"E_{num} = {val:.2f}\n"
+
+    text_obj.insert(tkinter.END, energy_string)
+
 def _quit(root):
     root.quit()  # stops mainloop
     root.destroy()
@@ -67,14 +118,29 @@ def main():
     # TODO: list of energy eigenvalues
     global canvas, root
 
-    # set up tkinter window
+    # set up tkinter window and needed sub windows
     root = tkinter.Tk()
     root.geometry("1000x600")
     root.wm_title("2-D Schrodinger")
+    x_min_max_frame = tkinter.Frame(root)
+    y_min_max_frame = tkinter.Frame(root)
+    next_prev_frame = tkinter.Frame(root)
+
+    # validaters for float and int
+    reg_f = root.register(_validate_float)
+    reg_i = root.register(_validate_int)
 
     # Default choice is square well upon start
     potential_choice = PotentialType.square
     potential_amp = 0.0
+
+    # Text field containing potential amplitude
+    amp_label_text = tkinter.StringVar(value="Potential Amp:")
+    amp_label = tkinter.Label(root, textvariable=amp_label_text, height=2)
+
+    amp_text = tkinter.Entry(
+        root, validate="key", validatecommand=(reg_f, '%P'))
+    amp_text.insert(tkinter.END, "0")
 
     # add matplotlib hook to tk
     fig = Figure(figsize=(5, 4), dpi=100)
@@ -83,6 +149,10 @@ def main():
 
     # solve the problem with initial choice
     x, y, V, funcs, vals = solve_problem(potential_choice=potential_choice, potential_amplitude=potential_amp)
+
+    # Text containing energy eigenvalues:
+    e_text = tkinter.Text(root, height=3, width=20)
+    _format_energy_text(e_text, vals)
 
     # connect matplotlib hook to tk root
     canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
@@ -97,29 +167,91 @@ def main():
 
     # prev eigenfunction
     prev_button = tkinter.Button(
-        master=root, text="Prev Plot", command=lambda: inc_dec.dec_selector())
+        master=next_prev_frame, text="Prev Plot", command=lambda: inc_dec.dec_selector())
 
     # next eigenfunction
     next_button = tkinter.Button(
-        master=root, text="Next Plot", command=lambda: inc_dec.inc_selector())
+        master=next_prev_frame, text="Next Plot", command=lambda: inc_dec.inc_selector())
 
+    # plot potential on top of original
+    potential_button = tkinter.Button(
+        master=root,
+        text="Plot Potential",
+        command=lambda: inc_dec.plot_potential())
 
+    # change well minimum and maximum
+    x_min_entry = tkinter.Entry(
+        x_min_max_frame, validate="key", validatecommand=(reg_f, '%P'), width=5)
+    x_min_entry.insert(tkinter.END, str(min(x[0])))
+
+    x_max_entry = tkinter.Entry(
+        x_min_max_frame, validate="key", validatecommand=(reg_f, '%P'), width=5)
+    x_max_entry.insert(tkinter.END, str(max(x[-1])))
+
+    y_min_entry = tkinter.Entry(
+        y_min_max_frame, validate="key", validatecommand=(reg_f, '%P'), width=5)
+    y_min_entry.insert(tkinter.END, str(min(y[0])))
+
+    y_max_entry = tkinter.Entry(
+        y_min_max_frame, validate="key", validatecommand=(reg_f, '%P'), width=5)
+    y_max_entry.insert(tkinter.END, str(max(y[-1])))
+
+    # change dimension of Hamiltonian
+    eig_entry = tkinter.Entry(
+        root, validate="key", validatecommand=(reg_i, '%P'))
+    eig_entry.insert(tkinter.END, "10")
+
+    # listbox to pick potential
+    potential_options = [potential.name for potential in PotentialType]
+    list_items = tkinter.Variable(value=potential_options)
+    listbox = tkinter.Listbox(
+        root,
+        listvariable=list_items,
+        height=3,
+        exportselection=False,
+        selectmode=tkinter.BROWSE)
+    listbox.selection_set(first=0)  # set first selection by default
+    
+    listbox.bind('<<ListboxSelect>>',
+                 lambda x: _on_item_select(
+                     listbox, inc_dec, e_text, amp_text,
+                     fig, x_min_entry, y_max_entry, x_min_entry, y_max_entry,
+                     eig_entry, x))
+    
+    # labels
+    eng_label_text = tkinter.StringVar(value="Energy Values:")
+    pot_label_text = tkinter.StringVar(value="1-D Potential:")
+    x_bound_label_text = tkinter.StringVar(value="Well x Bounds:")
+    y_bound_label_text = tkinter.StringVar(value="Well y Bounds:")
+    eig_label_text = tkinter.StringVar(value="Energy Eigenvals:")
+    energy_label = tkinter.Label(root, textvariable=eng_label_text, height=2)
+    pot_label = tkinter.Label(root, textvariable=pot_label_text, height=2)
+    x_bound_label = tkinter.Label(x_min_max_frame, textvariable=x_bound_label_text, height=2)
+    y_bound_label = tkinter.Label(y_min_max_frame, textvariable=y_bound_label_text, height=2)
+    eig_label = tkinter.Label(root, textvariable=eig_label_text, height=2)
+    
+    # pack buttons
     canvas.get_tk_widget().pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=1)
-    prev_button.pack(side=tkinter.TOP)
-    next_button.pack(side=tkinter.TOP)
-    # potential_button.pack(side=tkinter.TOP)
-    # pot_label.pack(side=tkinter.TOP)
-    # listbox.pack(side=tkinter.TOP)
-    # eig_label.pack(side=tkinter.TOP)
-    # eig_entry.pack(side=tkinter.TOP)
-    # amp_label.pack(side=tkinter.TOP)
-    # amp_text.pack(side=tkinter.TOP)
-    # min_label.pack(side=tkinter.TOP)
-    # min_entry.pack(side=tkinter.TOP)
-    # max_label.pack(side=tkinter.TOP)
-    # max_entry.pack(side=tkinter.TOP)
-    # energy_label.pack(side=tkinter.TOP)
-    # e_text.pack(side=tkinter.TOP)
+    next_prev_frame.pack(side=tkinter.TOP, fill=None, expand=False)
+    prev_button.pack(in_=next_prev_frame, side=tkinter.LEFT)
+    next_button.pack(in_=next_prev_frame, side=tkinter.RIGHT)
+    potential_button.pack(side=tkinter.TOP)
+    pot_label.pack(side=tkinter.TOP)
+    listbox.pack(side=tkinter.TOP)
+    eig_label.pack(side=tkinter.TOP)
+    eig_entry.pack(side=tkinter.TOP)
+    amp_label.pack(side=tkinter.TOP)
+    amp_text.pack(side=tkinter.TOP)
+    x_min_max_frame.pack(side=tkinter.TOP, expand=False)
+    y_min_max_frame.pack(side=tkinter.TOP, expand=False)
+    x_bound_label.pack(in_=x_min_max_frame)
+    x_min_entry.pack(in_=x_min_max_frame, side=tkinter.LEFT)
+    x_max_entry.pack(in_=x_min_max_frame, side=tkinter.RIGHT)
+    y_bound_label.pack(in_=y_min_max_frame)
+    y_min_entry.pack(in_=y_min_max_frame, side=tkinter.LEFT)
+    y_max_entry.pack(in_=y_min_max_frame, side=tkinter.RIGHT)
+    energy_label.pack(side=tkinter.TOP)
+    e_text.pack(side=tkinter.TOP)
     quit_button.pack(side=tkinter.BOTTOM)
 
     tkinter.mainloop()
