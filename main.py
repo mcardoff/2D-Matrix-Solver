@@ -59,6 +59,12 @@ def _quit(root):
 
     
 def main():
+    # TODO: Potential Button
+    # TODO: Listbox for choosing potential
+    # TODO: change num of eigenvals
+    # TODO: change potential amplitude
+    # TODO: change x/y min values
+    # TODO: list of energy eigenvalues
     global canvas, root
 
     # set up tkinter window
@@ -101,6 +107,19 @@ def main():
     canvas.get_tk_widget().pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=1)
     prev_button.pack(side=tkinter.TOP)
     next_button.pack(side=tkinter.TOP)
+    # potential_button.pack(side=tkinter.TOP)
+    # pot_label.pack(side=tkinter.TOP)
+    # listbox.pack(side=tkinter.TOP)
+    # eig_label.pack(side=tkinter.TOP)
+    # eig_entry.pack(side=tkinter.TOP)
+    # amp_label.pack(side=tkinter.TOP)
+    # amp_text.pack(side=tkinter.TOP)
+    # min_label.pack(side=tkinter.TOP)
+    # min_entry.pack(side=tkinter.TOP)
+    # max_label.pack(side=tkinter.TOP)
+    # max_entry.pack(side=tkinter.TOP)
+    # energy_label.pack(side=tkinter.TOP)
+    # e_text.pack(side=tkinter.TOP)
     quit_button.pack(side=tkinter.BOTTOM)
 
     tkinter.mainloop()
