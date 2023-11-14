@@ -37,19 +37,20 @@ def linear(ISW, amplitude):
 def quadratic(ISW, amplitude):
     """Half-harmonic oscillator potential."""
     assert(isinstance(ISW, InfiniteSquareWell))
-    return general_well(ISW, lambda x: amplitude * x * x)
+    return general_well(ISW, lambda x, y: amplitude * ((x*x) + (y*y)))
 
 
 def centered_quadratic(ISW, amplitude):
     """Quadratic potential barrier in the center of the well."""
     assert(isinstance(ISW, InfiniteSquareWell))
 
-    def centered(x):
-        width = ISW.well_width
-        mid = (ISW.well_x_max - abs(ISW.well_x_min)) / 2.0
-        offset = x - mid
-        if abs(offset) < 0.25 * width:
-            return amplitude * offset * offset
+    def centered(x,y):
+        x_width, y_width = ISW.well_x_width, ISW.well_y_width
+        x_mid = (ISW.well_x_max - abs(ISW.well_x_min)) / 2.0
+        y_mid = (ISW.well_y_max - abs(ISW.well_y_min)) / 2.0
+        x_offset, y_offset = x - x_mid, y - x_mid
+        if abs(x_offset) < 0.25 * x_width and abs(y_offset) < 0.25 * y_width:
+            return amplitude * (x_offset**2 + y_offset**2)
         else:
             return 0
     return general_well(ISW, centered)
@@ -141,7 +142,7 @@ class PotentialType(Enum):
     """Enumeration which contains all working potential types."""
 
     square = auto()              # WORKING
-    linear = auto()              # BROKEN
+    linear = auto()              # WORKING
     quadratic = auto()           # BROKEN
     centered_quadratic = auto()  # BROKEN
     square_barrier = auto()      # BROKEN
