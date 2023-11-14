@@ -1,17 +1,22 @@
+# libraries
 import numpy as np
 import numpy.linalg as la
-import matplotlib.pyplot as plt
+import tkinter
+
+# matplotlib backends
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
+from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d import Axes3D
 
+# file imports
 from infinitesquarewell import InfiniteSquareWell
 from potentials import PotentialType
 from generatehamiltonian import compute_hamiltonian
-import time
 
 def solve_problem(potential_choice=PotentialType.square, potential_amplitude=0.0, e_vals=5,
                   x_min=-1.0, x_max=1.0, y_min=-1.0, y_max=1.0):
-    # Define ISW basis using predefined min/max
-    # TODO: Change this so you can have rectangular space, where x and y not necessary same min/max
+    # Define ISW basis using supplied values
     ISW = InfiniteSquareWell(energy_eigenvals=e_vals, well_x_min=x_min, well_x_max=x_max, well_y_min=y_min, well_y_max=y_max)
 
     # Extract potential meshgrid
@@ -46,19 +51,53 @@ def solve_problem(potential_choice=PotentialType.square, potential_amplitude=0.0
     # newfuncs :: new eigenfuncs from diagonalized H
     # eigenvals :: new eigenvals of diagonalized H
     return (x,y,V,sorted_newfuncs,sorted(eigenvals))
+
+def _quit(root):
+    root.quit()  # stops mainloop
+    root.destroy()
+
     
 def main():
-    # plot 2d wavefunction
-    x, y, V, funcs, vals = solve_problem()
-    for (energy,func) in zip(vals,funcs):
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        ax.plot_surface(x, y, func, cmap='viridis')
-        plt.title(f'2D Eigenfunc: {energy}')
-        plt.xlabel('x')
-        plt.ylabel('y')
-        plt.show()
+    global canvas, root
 
-    plt.ioff()
+    # set up tkinter window
+    root = tkinter.Tk()
+    root.geometry("1000x600")
+    root.wm_title("2-D Schrodinger")
+
+    # Default choice is square well upon start
+    potential_choice = PotentialType.square
+    potential_amp = 0.0
+
+    # add matplotlib hook to tk
+    fig = Figure(figsize=(5, 4), dpi=100)
+    subfig = fig.add_subplot(111, projection='3d')
+    fig.suptitle(potential_choice.name)
+
+    # solve the problem with initial choice
+    x, y, V, funcs, vals = solve_problem(potential_choice=potential_choice, potential_amplitude=potential_amp)
+
+    # connect matplotlib hook to tk root
+    canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
+    canvas.draw()
+
+    quit_button = tkinter.Button(
+    master=root, text="Quit", command=lambda: _quit(root))
+
+    canvas.get_tk_widget().pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=1)
+    quit_button.pack(side=tkinter.BOTTOM)
+
+    tkinter.mainloop()
+
+#       for (energy,func) in zip(vals,funcs):
+#        fig = plt.figure()
+#        ax = fig.add_subplot(111, projection='3d')
+#        ax.plot_surface(x, y, func, cmap='viridis')
+#        plt.title(f'2D Eigenfunc: {energy}')
+#        plt.xlabel('x')
+#        plt.ylabel('y')
+#        plt.show()
+#
+#    plt.ioff()
 if __name__ == '__main__':
     main()
