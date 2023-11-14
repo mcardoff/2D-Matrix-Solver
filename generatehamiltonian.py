@@ -9,7 +9,7 @@ def mel(psil, V, psir, ISW):
     # discrete inner product: < left | V | right >
     el = np.mean(psil*V*psir)
     # readjust for avg val thm
-    return float(el * ISW.well_width**2)
+    return float(el * ISW.well_area)
 
 def compute_hamiltonian(V, ISW):
     """Compute discretized hamiltonian."""

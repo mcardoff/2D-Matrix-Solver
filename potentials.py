@@ -46,7 +46,7 @@ def centered_quadratic(ISW, amplitude):
 
     def centered(x):
         width = ISW.well_width
-        mid = (ISW.well_max - abs(ISW.well_min)) / 2.0
+        mid = (ISW.well_x_max - abs(ISW.well_x_min)) / 2.0
         offset = x - mid
         if abs(offset) < 0.25 * width:
             return amplitude * offset * offset

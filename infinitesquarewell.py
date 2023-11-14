@@ -15,16 +15,19 @@ def main():
 class InfiniteSquareWell:
     """Class which contains all important information about the ISW."""
 
-    def __init__(self, well_min=0.0, well_max=1.0, steps=200,
+    def __init__(self, well_x_min=0.0, well_x_max=1.0, well_y_min=0.0, well_y_max=1.0, steps=200,
                  energy_eigenvals=5, hbar=1.0, mass=1.0):
         """Initialize given width, mass, number of evals and resolution."""
         # values set by user
-        self.well_min = well_min
-        self.well_max = well_max
-        self.well_width = abs(well_max - well_min)
+        self.well_x_min, self.well_x_max = well_x_min, well_x_max
+        self.well_y_min, self.well_y_max = well_y_min, well_y_max
+        self.well_x_width = abs(well_x_max - well_x_min)
+        self.well_y_width = abs(well_y_max - well_y_min)
+        self.well_area = self.well_x_width * self.well_y_width
         self.steps = steps
         self.energy_eigenvals = energy_eigenvals
-        self.step_size = self.well_width / steps
+        #self.x_step_size = self.well_x_width / steps
+        #self.y_step_size = self.well_y_width / steps
 
         # used in generation
         self.basis_funcs = {}
@@ -37,8 +40,8 @@ class InfiniteSquareWell:
         self.mass = mass
         
         # set x and y values
-        self.xvals = np.linspace(self.well_min, self.well_max, self.steps+1)
-        self.yvals = np.linspace(self.well_min, self.well_max, self.steps+1)
+        self.xvals = np.linspace(self.well_x_min, self.well_x_max, self.steps+1)
+        self.yvals = np.linspace(self.well_y_min, self.well_y_max, self.steps+1)
         self.xvals, self.yvals = np.meshgrid(self.xvals, self.yvals)
 
         # do everything in initializer
@@ -46,9 +49,10 @@ class InfiniteSquareWell:
 
     def basis_2D(self, x, y, n_x, n_y):
         PI = np.pi
-        L = self.well_width
-        psi_x = np.sqrt(2/L)*np.sin(n_x*PI*(x-self.well_min)/L)
-        psi_y = np.sqrt(2/L)*np.sin(n_y*PI*(y-self.well_min)/L)
+        L1 = self.well_x_width
+        L2 = self.well_y_width
+        psi_x = np.sqrt(2/L1)*np.sin(n_x*PI*(x-self.well_x_min)/L1)
+        psi_y = np.sqrt(2/L2)*np.sin(n_y*PI*(y-self.well_x_min)/L2)
         return psi_x * psi_y
     
     def generate_basis_funcs(self):
@@ -57,12 +61,13 @@ class InfiniteSquareWell:
         # can base everything off that
         # Quick pneumonics
         PI = np.pi
-        L = self.well_width
+        L1 = self.well_x_width
+        L2 = self.well_y_width
         # ISW eigenvalues are natural numbers
         for n in range(1, self.energy_eigenvals+1):
             for m in range(1, self.energy_eigenvals+1):
                 # analytic formulae
-                energy = (n*n + m*m) * (self.hbar * PI / L) ** 2 / (2.0*self.mass)
+                energy = ((n *self.hbar * PI / L1) ** 2 + (m *self.hbar * PI / L2) ** 2) / (2.0*self.mass)
                 eigenfunc = self.basis_2D(self.xvals, self.yvals, n, m)
                 # Add to dicts
                 self.eigenvals[(n,m)] = energy

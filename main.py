@@ -8,10 +8,11 @@ from potentials import PotentialType
 from generatehamiltonian import compute_hamiltonian
 import time
 
-def solve_problem(potential_choice=PotentialType.linear, potential_amplitude=2.0, e_vals=5, l_bnd=-1.0, r_bnd=1.0):
+def solve_problem(potential_choice=PotentialType.square, potential_amplitude=0.0, e_vals=5,
+                  x_min=-1.0, x_max=1.0, y_min=-1.0, y_max=1.0):
     # Define ISW basis using predefined min/max
     # TODO: Change this so you can have rectangular space, where x and y not necessary same min/max
-    ISW = InfiniteSquareWell(energy_eigenvals=e_vals, well_min=l_bnd, well_max=r_bnd)
+    ISW = InfiniteSquareWell(energy_eigenvals=e_vals, well_x_min=x_min, well_x_max=x_max, well_y_min=y_min, well_y_max=y_max)
 
     # Extract potential meshgrid
     V = potential_choice.get_potential(ISW, potential_amplitude)
