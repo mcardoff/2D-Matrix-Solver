@@ -27,8 +27,8 @@ class InfiniteSquareWell:
         self.step_size = self.well_width / steps
 
         # used in generation
-        self.basis_funcs = []
-        self.eigenvals = []
+        self.basis_funcs = {}
+        self.eigenvals = {}
         self.xvals = []
         self.yvals = []
 
@@ -60,17 +60,14 @@ class InfiniteSquareWell:
         L = self.well_width
         # ISW eigenvalues are natural numbers
         for n in range(1, self.energy_eigenvals+1):
-            eigenval_row = []
-            basis_row = []
             for m in range(1, self.energy_eigenvals+1):
                 # analytic formulae
                 energy = (n**2 + m**2) * (self.hbar * PI / L) ** 2 / (2.0*self.mass)
                 eigenfunc = self.basis_2D(self.xvals, self.yvals, n, m)
-                # Add to lists
-                eigenval_row.append(energy)
-                basis_row.append(eigenfunc)
-            self.eigenvals.append(eigenval_row)
-            self.basis_funcs.append(basis_row)
+                # Add to dicts
+                self.eigenvals[n**2+m**2] = energy
+                self.basis_funcs[n**2+m**2] = eigenfunc
+            
 
 
 if __name__ == "__main__":

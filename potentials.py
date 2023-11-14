@@ -8,33 +8,30 @@ def main():
     """Test If potential plot is correct."""
     ISW = InfiniteSquareWell()
     potential = PotentialType.linear
-    V = potential.get_potential(ISW, 1.0)
-    plt.plot(ISW.xvals, V)
+    V = potential.get_potential(ISW,50.0)
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot_surface(ISW.xvals, ISW.yvals, V, cmap='viridis')
+    plt.title(f'2D Potential: {potential.to_string()}')
+    plt.xlabel('x')
+    plt.ylabel('y')
     plt.show()
 
 
 def general_well(ISW, f):
     """Place an infinite barrier at bounds, evals func provided elsewhere."""
-    MXVAL = 10000.0
+    MXVAL = 10000
     ret = f(ISW.xvals, ISW.yvals)
+    ret[0,:] = ret[:,0] = ret[-1,:] = ret[:,-1] = MXVAL
     return ret
 
-def on_border(ISW, x, y):
-    re = 1e-4
-    return abs(x - ISW.well_min) < re or abs(y - ISW.well_min) < re or abs(x - ISW.well_max) < re or abs(y - ISW.well_max) < re
-
 def square(ISW, amplitude):
-    def classic_isw(x,y):
-        if on_border(ISW, x, y)
-            return 10000.0
-        else:
-            return amplitude
-    return general_well(ISW,classic_isw)
+    return general_well(ISW, lambda x, y: x*0 + amplitude)
 
 def linear(ISW, amplitude):
-    """Particle in an electric field."""
+    """Particle in an electric field along the x axis."""
     assert(isinstance(ISW, InfiniteSquareWell))
-    return general_well(ISW, lambda x: amplitude * x)
+    return general_well(ISW, lambda x, y: amplitude * x)
 
 
 def quadratic(ISW, amplitude):
