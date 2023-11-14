@@ -40,6 +40,7 @@ def solve_problem(potential_choice=PotentialType.square, potential_amplitude=0.0
     x,y = ISW.xvals,ISW.yvals
 
     zipped = zip(eigenvals,newfuncs)
+    print(zipped)
     sorted_zip = sorted(zipped)
     sorted_newfuncs = []
     for (_, func) in sorted_zip:
@@ -161,7 +162,7 @@ def main():
     # Quit button to exit
     quit_button = tkinter.Button(master=root, text="Quit", command=lambda: _quit(root))
 
-     # Helper class that has button functions
+    # Helper class that has button functions
     inc_dec = IncDecButton(subfig, canvas, x, y, funcs, V)
     inc_dec.init_plot()
 
