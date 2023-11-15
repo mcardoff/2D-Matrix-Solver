@@ -43,6 +43,9 @@ class InfiniteSquareWell:
         self.xvals = np.linspace(self.well_x_min, self.well_x_max, self.steps+1)
         self.yvals = np.linspace(self.well_y_min, self.well_y_max, self.steps+1)
         self.xvals, self.yvals = np.meshgrid(self.xvals, self.yvals)
+        
+        # for convenience, coordinate pairs:
+        self.coord_pairs = np.column_stack((self.xvals.ravel(),self.yvals.ravel())) 
 
         # do everything in initializer
         self.generate_basis_funcs()

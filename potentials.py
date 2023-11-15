@@ -1,5 +1,6 @@
 """Class to organize and work with various potentials easily."""
 import matplotlib.pyplot as plt
+import numpy as np
 from enum import Enum, auto
 from infinitesquarewell import InfiniteSquareWell
 
@@ -21,7 +22,7 @@ def main():
 def general_well(ISW, f):
     """Place an infinite barrier at bounds, evals func provided elsewhere."""
     MXVAL = 10000
-    ret = f(ISW.xvals, ISW.yvals)
+    ret = np.array([f(x,y) for [x,y] in ISW.coord_pairs]).reshape(ISW.xvals.shape)
     ret[0,:] = ret[:,0] = ret[-1,:] = ret[:,-1] = MXVAL # change boundaries to be MXVAL
     return ret
 
@@ -48,7 +49,7 @@ def centered_quadratic(ISW, amplitude):
         x_width, y_width = ISW.well_x_width, ISW.well_y_width
         x_mid = (ISW.well_x_max - abs(ISW.well_x_min)) / 2.0
         y_mid = (ISW.well_y_max - abs(ISW.well_y_min)) / 2.0
-        x_offset, y_offset = x - x_mid, y - x_mid
+        x_offset, y_offset = x - x_mid, y - y_mid
         if abs(x_offset) < 0.25 * x_width and abs(y_offset) < 0.25 * y_width:
             return amplitude * (x_offset**2 + y_offset**2)
         else:
@@ -143,8 +144,8 @@ class PotentialType(Enum):
 
     square = auto()              # WORKING
     linear = auto()              # WORKING
-    quadratic = auto()           # BROKEN
-    centered_quadratic = auto()  # BROKEN
+    quadratic = auto()           # WORKING
+    centered_quadratic = auto()  # WORKING
     square_barrier = auto()      # BROKEN
     square_plus_linear = auto()  # BROKEN
     triangle_barrier = auto()    # BROKEN
