@@ -73,8 +73,8 @@ def square_barrier(ISW, amplitude):
 
 def square_plus_linear(ISW, amplitude):
     """Flat Potential that turns linear after a bit."""
-    def spl(x):
-        mid = (ISW.well_max + ISW.well_min) / 2.0
+    def spl(x, y):
+        mid = (ISW.well_x_max + ISW.well_x_min) / 2.0
         offset = x - mid
         if offset < 0:
             return 0.0
@@ -148,7 +148,7 @@ class PotentialType(Enum):
     quadratic = auto()           # WORKING
     centered_quadratic = auto()  # WORKING
     square_barrier = auto()      # WORKING
-    square_plus_linear = auto()  # BROKEN
+    square_plus_linear = auto()  # WORKING
     triangle_barrier = auto()    # BROKEN
     coupled_quadratic = auto()   # BROKEN
     kronig_penney = auto()       # BROKEN
