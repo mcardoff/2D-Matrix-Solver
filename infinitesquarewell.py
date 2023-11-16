@@ -19,32 +19,29 @@ class InfiniteSquareWell:
                  energy_eigenvals=5, hbar=1.0, mass=1.0):
         """Initialize given width, mass, number of evals and resolution."""
         # values set by user
-        self.well_x_min, self.well_x_max = well_x_min, well_x_max
-        self.well_y_min, self.well_y_max = well_y_min, well_y_max
-        self.well_x_width = abs(well_x_max - well_x_min)
-        self.well_y_width = abs(well_y_max - well_y_min)
-        self.well_area = self.well_x_width * self.well_y_width
+        self.well_x_min, self.well_x_max = min(well_x_min, well_x_max), max(well_x_min, well_x_max) # x bounds of well
+        self.well_y_min, self.well_y_max = min(well_y_min, well_y_max), max(well_y_min, well_y_max) # y bounds of well
+        self.well_x_width, self.well_y_width = abs(well_x_max - well_x_min), abs(well_y_max - well_y_min)
+        self.well_area = self.well_x_width * self.well_y_width # for convenience when calculating matrix elements
+        self.energy_eigenvals = energy_eigenvals # number of energy eigenvals to use in basis
         self.steps = steps
-        self.energy_eigenvals = energy_eigenvals
-        #self.x_step_size = self.well_x_width / steps
-        #self.y_step_size = self.well_y_width / steps
 
         # used in generation
         self.basis_funcs = {}
         self.eigenvals = {}
-        self.xvals = []
-        self.yvals = []
 
         # Set to 1 because we can
         self.hbar = hbar
         self.mass = mass
         
         # set x and y values
-        self.xvals = np.linspace(self.well_x_min, self.well_x_max, self.steps+1)
-        self.yvals = np.linspace(self.well_y_min, self.well_y_max, self.steps+1)
-        self.xvals, self.yvals = np.meshgrid(self.xvals, self.yvals)
+        temp_xvals = np.linspace(self.well_x_min, self.well_x_max, self.steps+1)
+        temp_yvals = np.linspace(self.well_y_min, self.well_y_max, self.steps+1)
+        self.xvals, self.yvals = np.meshgrid(temp_xvals, temp_yvals)
+        del temp_xvals
+        del temp_yvals
         
-        # for convenience, coordinate pairs:
+        # for convenience, coordinate pairs of the above:
         self.coord_pairs = np.column_stack((self.xvals.ravel(),self.yvals.ravel())) 
 
         # do everything in initializer
@@ -60,8 +57,6 @@ class InfiniteSquareWell:
     
     def generate_basis_funcs(self):
         """Generate eigenfunctions of zero potential well."""
-        # know how to generate the infinite square well basis,
-        # can base everything off that
         # Quick pneumonics
         PI = np.pi
         L1 = self.well_x_width
@@ -70,7 +65,7 @@ class InfiniteSquareWell:
         for n in range(1, self.energy_eigenvals+1):
             for m in range(1, self.energy_eigenvals+1):
                 # analytic formulae
-                energy = ((n *self.hbar * PI / L1) ** 2 + (m *self.hbar * PI / L2) ** 2) / (2.0*self.mass)
+                energy = ((n/L1)**2 + (m/L2)**2) * (self.hbar * PI)**2 / (2.0*self.mass)
                 eigenfunc = self.basis_2D(self.xvals, self.yvals, n, m)
                 # Add to dicts
                 self.eigenvals[(n,m)] = energy
