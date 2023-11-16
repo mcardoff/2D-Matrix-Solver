@@ -114,12 +114,6 @@ def _quit(root):
 
     
 def main():
-    # TODO: Potential Button
-    # TODO: Listbox for choosing potential
-    # TODO: change num of eigenvals
-    # TODO: change potential amplitude
-    # TODO: change x/y min values
-    # TODO: list of energy eigenvalues
     global canvas, root
 
     # set up tkinter window and needed sub windows
