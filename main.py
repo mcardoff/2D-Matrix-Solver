@@ -5,9 +5,7 @@ import tkinter
 
 # matplotlib backends
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
 from matplotlib.figure import Figure
-from mpl_toolkits.mplot3d import Axes3D
 
 # file imports
 from infinitesquarewell import InfiniteSquareWell
