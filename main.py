@@ -1,7 +1,7 @@
 # libraries
 import numpy as np
 import numpy.linalg as la
-import tkinter
+import tkinter as tk
 
 # matplotlib backends
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -52,9 +52,9 @@ def solve_problem(potential_choice=PotentialType.square, potential_amplitude=0.0
     return (x,y,V,sorted_newfuncs,sorted(eigenvals))
 
 def create_validated_entry(master=None, width=5, validate=None, def_val=""):
-    return_entry = tkinter.Entry(
+    return_entry = tk.Entry(
         master, validate="key", validatecommand=(validate, '%P'), width=width)
-    return_entry.insert(tkinter.END, def_val)
+    return_entry.insert(tk.END, def_val)
     return return_entry
 
 def _on_item_select(list_box, button_obj, e_text_obj, amp_text_obj,
@@ -106,7 +106,7 @@ def _format_energy_text(text_obj, energy_vals):
         num = "0{}".format(i+1) if i+1 < 10 else str(i+1)
         energy_string += f"E_{num} = {val:.2f}\n"
 
-    text_obj.insert(tkinter.END, energy_string)
+    text_obj.insert(tk.END, energy_string)
 
 def _quit(root):
     root.quit()  # stops mainloop
@@ -116,13 +116,13 @@ def _quit(root):
 def main():
     global canvas, root
 
-    # set up tkinter window and needed sub windows
-    root = tkinter.Tk()
+    # set up tk window and needed sub windows
+    root = tk.Tk()
     root.geometry("1000x600")
     root.wm_title("2-D Schrodinger")
-    x_min_max_frame = tkinter.Frame(root)
-    y_min_max_frame = tkinter.Frame(root)
-    next_prev_frame = tkinter.Frame(root)
+    x_min_max_frame = tk.Frame(root)
+    y_min_max_frame = tk.Frame(root)
+    next_prev_frame = tk.Frame(root)
 
     # validaters for float and int
     reg_f = root.register(_validate_float)
@@ -133,12 +133,12 @@ def main():
     potential_amp = 0.0
 
     # Text field containing potential amplitude
-    amp_label_text = tkinter.StringVar(value="Potential Amp:")
-    amp_label = tkinter.Label(root, textvariable=amp_label_text, height=2)
+    amp_label_text = tk.StringVar(value="Potential Amp:")
+    amp_label = tk.Label(root, textvariable=amp_label_text, height=2)
 
-    amp_text = tkinter.Entry(
+    amp_text = tk.Entry(
         root, validate="key", validatecommand=(reg_f, '%P'))
-    amp_text.insert(tkinter.END, "0.0")
+    amp_text.insert(tk.END, "0.0")
 
     # add matplotlib hook to tk
     fig = Figure(figsize=(4, 4), dpi=100)
@@ -148,19 +148,19 @@ def main():
     # connect matplotlib hook to tk root
     canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
     canvas.draw()
-    canvas.get_tk_widget().pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
+    canvas.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
     
     # change dimension of Hamiltonian
     eig_entry = create_validated_entry(master=root, validate=reg_i, def_val="5")
 
     # Quit button to exit
-    quit_button = tkinter.Button(master=root, text="Quit", command=lambda: _quit(root))
+    quit_button = tk.Button(master=root, text="Quit", command=lambda: _quit(root))
 
     # solve the problem with initial choice
     x, y, V, funcs, vals = solve_problem(potential_choice=potential_choice, potential_amplitude=potential_amp)
 
     # Text containing energy eigenvalues:
-    e_text = tkinter.Text(root, height=3, width=20)
+    e_text = tk.Text(root, height=3, width=20)
     _format_energy_text(e_text, vals)    
 
     # Helper class that has button functions
@@ -168,15 +168,15 @@ def main():
     inc_dec.init_plot()
 
     # prev eigenfunction
-    prev_button = tkinter.Button(
+    prev_button = tk.Button(
         master=next_prev_frame, text="Prev Plot", command=lambda: inc_dec.dec_selector())
 
     # next eigenfunction
-    next_button = tkinter.Button(
+    next_button = tk.Button(
         master=next_prev_frame, text="Next Plot", command=lambda: inc_dec.inc_selector())
 
     # plot potential on top of original
-    potential_button = tkinter.Button(
+    potential_button = tk.Button(
         master=root,
         text="Plot Potential",
         command=lambda: inc_dec.plot_potential())
@@ -189,13 +189,13 @@ def main():
 
     # listbox to pick potential
     potential_options = [potential.name for potential in PotentialType]
-    list_items = tkinter.Variable(value=potential_options)
-    listbox = tkinter.Listbox(
+    list_items = tk.Variable(value=potential_options)
+    listbox = tk.Listbox(
         root,
         listvariable=list_items,
         height=3,
         exportselection=False,
-        selectmode=tkinter.BROWSE)
+        selectmode=tk.BROWSE)
     listbox.selection_set(first=0)  # set first selection by default
     
     listbox.bind('<<ListboxSelect>>',
@@ -205,41 +205,41 @@ def main():
                      eig_entry, x))
     
     # labels
-    eng_label_text = tkinter.StringVar(value="Energy Values:")
-    pot_label_text = tkinter.StringVar(value="2-D Potential:")
-    x_bound_label_text = tkinter.StringVar(value="Well x Bounds:")
-    y_bound_label_text = tkinter.StringVar(value="Well y Bounds:")
-    eig_label_text = tkinter.StringVar(value="Energy Eigenvals:")
-    energy_label = tkinter.Label(root, textvariable=eng_label_text, height=2)
-    pot_label = tkinter.Label(root, textvariable=pot_label_text, height=2)
-    x_bound_label = tkinter.Label(x_min_max_frame, textvariable=x_bound_label_text, height=2)
-    y_bound_label = tkinter.Label(y_min_max_frame, textvariable=y_bound_label_text, height=2)
-    eig_label = tkinter.Label(root, textvariable=eig_label_text, height=2)
+    eng_label_text = tk.StringVar(value="Energy Values:")
+    pot_label_text = tk.StringVar(value="2-D Potential:")
+    x_bound_label_text = tk.StringVar(value="Well x Bounds:")
+    y_bound_label_text = tk.StringVar(value="Well y Bounds:")
+    eig_label_text = tk.StringVar(value="Energy Eigenvals:")
+    energy_label = tk.Label(root, textvariable=eng_label_text, height=2)
+    pot_label = tk.Label(root, textvariable=pot_label_text, height=2)
+    x_bound_label = tk.Label(x_min_max_frame, textvariable=x_bound_label_text, height=2)
+    y_bound_label = tk.Label(y_min_max_frame, textvariable=y_bound_label_text, height=2)
+    eig_label = tk.Label(root, textvariable=eig_label_text, height=2)
     
     # pack buttons
-    next_prev_frame.pack(side=tkinter.TOP, fill=None, expand=False)
-    prev_button.pack(in_=next_prev_frame, side=tkinter.LEFT)
-    next_button.pack(in_=next_prev_frame, side=tkinter.RIGHT)
-    potential_button.pack(side=tkinter.TOP)
-    pot_label.pack(side=tkinter.TOP)
-    listbox.pack(side=tkinter.TOP)
-    eig_label.pack(side=tkinter.TOP)
-    eig_entry.pack(side=tkinter.TOP)
-    amp_label.pack(side=tkinter.TOP)
-    amp_text.pack(side=tkinter.TOP)
-    x_min_max_frame.pack(side=tkinter.TOP, expand=False)
-    y_min_max_frame.pack(side=tkinter.TOP, expand=False)
+    next_prev_frame.pack(side=tk.TOP, fill=None, expand=False)
+    prev_button.pack(in_=next_prev_frame, side=tk.LEFT)
+    next_button.pack(in_=next_prev_frame, side=tk.RIGHT)
+    potential_button.pack(side=tk.TOP)
+    pot_label.pack(side=tk.TOP)
+    listbox.pack(side=tk.TOP)
+    eig_label.pack(side=tk.TOP)
+    eig_entry.pack(side=tk.TOP)
+    amp_label.pack(side=tk.TOP)
+    amp_text.pack(side=tk.TOP)
+    x_min_max_frame.pack(side=tk.TOP, expand=False)
+    y_min_max_frame.pack(side=tk.TOP, expand=False)
     x_bound_label.pack(in_=x_min_max_frame)
-    x_min_entry.pack(in_=x_min_max_frame, side=tkinter.LEFT)
-    x_max_entry.pack(in_=x_min_max_frame, side=tkinter.RIGHT)
+    x_min_entry.pack(in_=x_min_max_frame, side=tk.LEFT)
+    x_max_entry.pack(in_=x_min_max_frame, side=tk.RIGHT)
     y_bound_label.pack(in_=y_min_max_frame)
-    y_min_entry.pack(in_=y_min_max_frame, side=tkinter.LEFT)
-    y_max_entry.pack(in_=y_min_max_frame, side=tkinter.RIGHT)
-    energy_label.pack(side=tkinter.TOP)
-    e_text.pack(side=tkinter.TOP)
-    quit_button.pack(side=tkinter.BOTTOM)
+    y_min_entry.pack(in_=y_min_max_frame, side=tk.LEFT)
+    y_max_entry.pack(in_=y_min_max_frame, side=tk.RIGHT)
+    energy_label.pack(side=tk.TOP)
+    e_text.pack(side=tk.TOP)
+    quit_button.pack(side=tk.BOTTOM)
 
-    tkinter.mainloop()
+    tk.mainloop()
 
 #       for (energy,func) in zip(vals,funcs):
 #        fig = plt.figure()
