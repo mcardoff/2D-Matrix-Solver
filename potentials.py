@@ -59,11 +59,12 @@ def centered_quadratic(ISW, amplitude):
 
 def square_barrier(ISW, amplitude):
     """Square-shaped potential barrier."""
-    def sqb(x):
-        width = ISW.well_width
-        mid = (ISW.well_max - abs(ISW.well_min)) / 2.0
-        offset = x - mid
-        if abs(offset) < 0.2 * 0.5 * width:
+    def sqb(x, y):
+        x_width, y_width = ISW.well_x_width, ISW.well_y_width
+        x_mid = (ISW.well_x_max - abs(ISW.well_x_min)) / 2.0
+        y_mid = (ISW.well_y_max - abs(ISW.well_y_min)) / 2.0
+        x_offset, y_offset = x - x_mid, y - y_mid
+        if abs(x_offset) < 0.1 * x_width and abs(y_offset) < 0.1 * y_width:
             return amplitude
         else:
             return 0.0
@@ -146,7 +147,7 @@ class PotentialType(Enum):
     linear = auto()              # WORKING
     quadratic = auto()           # WORKING
     centered_quadratic = auto()  # WORKING
-    square_barrier = auto()      # BROKEN
+    square_barrier = auto()      # WORKING
     square_plus_linear = auto()  # BROKEN
     triangle_barrier = auto()    # BROKEN
     coupled_quadratic = auto()   # BROKEN
