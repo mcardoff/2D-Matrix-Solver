@@ -129,15 +129,17 @@ def kronig_penney(ISW, amplitude):
 
 def hydrogen(ISW, amplitude):
     """Hydrogen Atom potential, ampltude equivalent to charge."""
-    def h_atom(x):
-        return -amplitude / abs(x) if abs(x) > 1e-3 else h_atom(2e-3)
+    def h_atom(x, y):
+        r = np.sqrt(x*x + y*y)
+        return -amplitude / r if abs(r) > 1e-3 else h_atom(2e-3, 2e-3)
     return general_well(ISW, h_atom)
 
 def lennard_jones(ISW, amplitude):
     """Lennard-Jones Potential, seen here: https://en.wikipedia.org/wiki/Lennard-Jones_potential."""
-    def lg(x):
-        return amplitude * (x**-12 - x**-6) if abs(x) > 1e-3 else lg(2e-3)
-    return general_well(ISW, lg)
+    def lj(x,y):
+        r = np.sqrt(x*x+y*y)
+        return amplitude * (r**-12 - r**-6) if abs(r) > 1e-3 else lj(2e-3, 2e-3)
+    return general_well(ISW, lj)
 
 
 class PotentialType(Enum):
@@ -152,8 +154,8 @@ class PotentialType(Enum):
     triangle_barrier = auto()    # BROKEN
     coupled_quadratic = auto()   # BROKEN
     kronig_penney = auto()       # BROKEN
-    hydrogen = auto()            # BROKEN
-    lennard_jones = auto()       # BROKEN
+    hydrogen = auto()            # WORKING
+    lennard_jones = auto()       # WORKING
 
     def get_potential(self, ISW, amplitude):
         """From enum type, return the proper potential to compute."""
