@@ -38,7 +38,6 @@ def solve_problem(potential_choice=PotentialType.square, potential_amplitude=0.0
     x,y = ISW.xvals,ISW.yvals
 
     zipped = zip(eigenvals,newfuncs)
-    print(zipped)
     sorted_zip = sorted(zipped)
     sorted_newfuncs = []
     for (_, func) in sorted_zip:
@@ -51,6 +50,12 @@ def solve_problem(potential_choice=PotentialType.square, potential_amplitude=0.0
     # newfuncs :: new eigenfuncs from diagonalized H
     # eigenvals :: new eigenvals of diagonalized H
     return (x,y,V,sorted_newfuncs,sorted(eigenvals))
+
+def create_validated_entry(master=None, width=5, validate=None, def_val=""):
+    return_entry = tkinter.Entry(
+        master, validate="key", validatecommand=(validate, '%P'), width=width)
+    return_entry.insert(tkinter.END, def_val)
+    return return_entry
 
 def _on_item_select(list_box, button_obj, e_text_obj, amp_text_obj,
                     fig, x_min_obj, x_max_obj, y_min_obj, y_max_obj,
@@ -139,26 +144,30 @@ def main():
 
     amp_text = tkinter.Entry(
         root, validate="key", validatecommand=(reg_f, '%P'))
-    amp_text.insert(tkinter.END, "0")
+    amp_text.insert(tkinter.END, "0.0")
 
     # add matplotlib hook to tk
-    fig = Figure(figsize=(5, 4), dpi=100)
+    fig = Figure(figsize=(4, 4), dpi=100)
     subfig = fig.add_subplot(111, projection='3d')
     fig.suptitle(potential_choice.name)
+    
+    # connect matplotlib hook to tk root
+    canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
+    canvas.draw()
+    canvas.get_tk_widget().pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
+    
+    # change dimension of Hamiltonian
+    eig_entry = create_validated_entry(master=root, validate=reg_i, def_val="5")
+
+    # Quit button to exit
+    quit_button = tkinter.Button(master=root, text="Quit", command=lambda: _quit(root))
 
     # solve the problem with initial choice
     x, y, V, funcs, vals = solve_problem(potential_choice=potential_choice, potential_amplitude=potential_amp)
 
     # Text containing energy eigenvalues:
     e_text = tkinter.Text(root, height=3, width=20)
-    _format_energy_text(e_text, vals)
-
-    # connect matplotlib hook to tk root
-    canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
-    canvas.draw()
-
-    # Quit button to exit
-    quit_button = tkinter.Button(master=root, text="Quit", command=lambda: _quit(root))
+    _format_energy_text(e_text, vals)    
 
     # Helper class that has button functions
     inc_dec = IncDecButton(subfig, canvas, x, y, funcs, V)
@@ -179,26 +188,10 @@ def main():
         command=lambda: inc_dec.plot_potential())
 
     # change well minimum and maximum
-    x_min_entry = tkinter.Entry(
-        x_min_max_frame, validate="key", validatecommand=(reg_f, '%P'), width=5)
-    x_min_entry.insert(tkinter.END, str(min(x[0])))
-
-    x_max_entry = tkinter.Entry(
-        x_min_max_frame, validate="key", validatecommand=(reg_f, '%P'), width=5)
-    x_max_entry.insert(tkinter.END, str(max(x[-1])))
-
-    y_min_entry = tkinter.Entry(
-        y_min_max_frame, validate="key", validatecommand=(reg_f, '%P'), width=5)
-    y_min_entry.insert(tkinter.END, str(min(y[0])))
-
-    y_max_entry = tkinter.Entry(
-        y_min_max_frame, validate="key", validatecommand=(reg_f, '%P'), width=5)
-    y_max_entry.insert(tkinter.END, str(max(y[-1])))
-
-    # change dimension of Hamiltonian
-    eig_entry = tkinter.Entry(
-        root, validate="key", validatecommand=(reg_i, '%P'))
-    eig_entry.insert(tkinter.END, "10")
+    x_min_entry = create_validated_entry(master=x_min_max_frame, validate=reg_f, def_val=str(min(x[0])))
+    x_max_entry = create_validated_entry(master=x_min_max_frame, validate=reg_f, def_val=str(min(x[-1])))
+    y_min_entry = create_validated_entry(master=y_min_max_frame, validate=reg_f, def_val=str(min(y[0])))
+    y_max_entry = create_validated_entry(master=y_min_max_frame, validate=reg_f, def_val=str(min(y[-1])))
 
     # listbox to pick potential
     potential_options = [potential.name for potential in PotentialType]
