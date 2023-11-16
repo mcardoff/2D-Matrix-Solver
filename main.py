@@ -206,7 +206,7 @@ def main():
     
     # labels
     eng_label_text = tkinter.StringVar(value="Energy Values:")
-    pot_label_text = tkinter.StringVar(value="1-D Potential:")
+    pot_label_text = tkinter.StringVar(value="2-D Potential:")
     x_bound_label_text = tkinter.StringVar(value="Well x Bounds:")
     y_bound_label_text = tkinter.StringVar(value="Well y Bounds:")
     eig_label_text = tkinter.StringVar(value="Energy Eigenvals:")
@@ -217,7 +217,6 @@ def main():
     eig_label = tkinter.Label(root, textvariable=eig_label_text, height=2)
     
     # pack buttons
-    canvas.get_tk_widget().pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=1)
     next_prev_frame.pack(side=tkinter.TOP, fill=None, expand=False)
     prev_button.pack(in_=next_prev_frame, side=tkinter.LEFT)
     next_button.pack(in_=next_prev_frame, side=tkinter.RIGHT)
